@@ -1,5 +1,5 @@
 //
-//  Global.swift
+//  Misc.swift
 //  XCOpenKit
 //
 //  Created by Yutaro Muta on 2018/04/14.
