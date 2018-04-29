@@ -9,6 +9,7 @@ import Foundation
 import Utility
 import Basic
 import POSIX
+import PathKit
 
 public struct XCOpenTool {
     let parser: ArgumentParser
@@ -20,14 +21,15 @@ public struct XCOpenTool {
         let binder = ArgumentBinder<Options>()
         binder.bind(parser: parser) { $0.subcommand = Options.Command(rawValue: $1) }
         binder.bind(option: parser.add(option: "--version", kind: Bool.self)) { (options, _) in options.subcommand = Options.Command.version }
-        binder.bind(option: parser.add(option: "--verbose", kind: Bool.self, usage: "Show more debugging information")) { $0.isVerbose = $1 }
+        binder.bind(option: parser.add(option: "--verbose", kind: Bool.self, usage: "Show more debugging information")) { $0.verbose = $1 }
 
         let open = parser.add(subparser: "open", overview: "Open file of .xcodeproj or .xcworkspace")
         binder.bind(parser: open) { $0.subcommand = Options.Command(rawValue: $1) }
-        binder.bind(positional: open.add(positional: "source", kind: String.self), to: { $0.source = $1 })
+        binder.bind(positional: open.add(positional: "path", kind: String.self), to: { $0.path = Path($1) })
 
         let list = parser.add(subparser: "list", overview: "Show files of .xcodeproj or .xcworkspace in local")
         binder.bind(parser: list) { $0.subcommand = Options.Command.init(rawValue: $1) }
+        binder.bind(option: list.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current"), to: { $0.path = Path($1) })
 
         do {
             let result = try parser.parse(arguments)
@@ -49,8 +51,8 @@ public struct XCOpenTool {
         case .open:
             parser.printUsage(on: stdoutStream)
         case .list:
-            print(options.source)
-            break
+            let command = ListTool()
+            _ = try command.run(path: options.path, verbose: options.verbose)
         case .version:
             print(XCOpenKit.version)
         }
@@ -58,9 +60,9 @@ public struct XCOpenTool {
 }
 
 struct Options {
-    var isVerbose = false
+    var verbose = false
     var subcommand: Command?
-    var source = ""
+    var path: Path?
 
     enum Command: String, CustomStringConvertible {
         case open = "open"
