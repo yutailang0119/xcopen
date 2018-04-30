@@ -23,20 +23,21 @@ struct ListTool {
 
     private let disposeBag = DisposeBag()
 
-    func run(path: Path?, verbose: Bool = false) -> Observable<Packages> {
+    func run(path: Path?, verbose: Bool = false) -> Single<Packages> {
         let path: Path = path ?? Path.current
 
         print("search of \"\(path.description)\"...")
 
-        let all: Observable<[Path]> = recursiveChildren(from: path)
+        let all: Single<[Path]> = recursiveChildren(from: path)
 
-        let packages: Observable<Packages> = all
+        let packages: Single<Packages> = all
             .flatMap { paths in
                 Observable.combineLatest(
                     self.glob("*.xcodeproj", from: paths),
                     self.glob("*.xcworkspace", from: paths),
                     self.glob("*.playground", from: paths)
-                )
+                    )
+                    .asSingle()
             }
             .map { xcodeprojs, xcworkspaces, playgrounds -> Packages in
                 return Packages(xcodeprojs: xcodeprojs, xcworkspaces: xcworkspaces, playgrounds: playgrounds)
@@ -44,7 +45,7 @@ struct ListTool {
 
         packages
             .subscribe(
-                onNext: { packages in
+                onSuccess: { packages in
                     let writer = InteractiveWriter.stdout
                     packages.all.forEach { package in
                         writer.write(package.lastComponent, inColor: .cyan, bold: true)
@@ -60,28 +61,26 @@ struct ListTool {
         return packages
     }
 
-    private func recursiveChildren(from path: Path) -> Observable<[Path]> {
-        let observable: Observable<[Path]> = Observable.create { observer in
+    private func recursiveChildren(from path: Path) -> Single<[Path]> {
+        let single: Single<[Path]> = Single.create { observer in
             do {
-                observer.onNext(try path.recursiveChildren())
-                observer.onCompleted()
+                observer(.success(try path.recursiveChildren()))
             } catch {
-                observer.onError(error)
+                observer(.error(error))
             }
             let disposable = Disposables.create()
             return disposable
         }
-        return observable
+        return single
     }
 
     private func glob(_ pattern: String, from paths: [Path]) -> Observable<[Path]> {
-        let observable: Observable<[Path]> = Observable.create { observer in
-            observer.onNext(paths.flatMap { $0.glob(pattern) })
-            observer.onCompleted()
-
+        let single: Single<[Path]> = Single.create { observer in
+            print(pattern)
+            observer(.success(paths.flatMap { $0.glob(pattern) }))
             let disposable = Disposables.create()
             return disposable
         }
-        return observable
+        return single.asObservable()
     }
 }
