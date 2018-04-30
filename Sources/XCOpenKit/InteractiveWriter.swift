@@ -8,6 +8,7 @@
 import Basic
 
 final class InteractiveWriter {
+    static let stdout = InteractiveWriter(stream: stdoutStream)
     static let stderr = InteractiveWriter(stream: stderrStream)
 
     private let terminal: TerminalController?
