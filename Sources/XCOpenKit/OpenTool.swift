@@ -15,7 +15,7 @@ struct OpenTool {
         print("search of \"\(path.description)\"...")
 
         let all = try path.recursiveChildren()
-        let packages = all.flatMap { $0.glob(fileName) }
+        let packages = all.filter { $0.lastComponent == fileName }
 
         switch packages.count {
         case 0:
