@@ -16,20 +16,21 @@ public struct XCOpenTool {
     let options: Options
 
     public init(arguments: [String]) {
-        parser = ArgumentParser(commandName: "xcopen", usage: "[options] subcommand [options]", overview: "Open file of .xcodeproj or .xcworkspace")
+        parser = ArgumentParser(commandName: "xcopen", usage: "[options] subcommand [options]", overview: "Open file of .xcodeproj, .xcworkspace or .playground")
 
         let binder = ArgumentBinder<Options>()
         binder.bind(parser: parser) { $0.subcommand = Options.Command(rawValue: $1) }
         binder.bind(option: parser.add(option: "--version", kind: Bool.self)) { (options, _) in options.subcommand = Options.Command.version }
         binder.bind(option: parser.add(option: "--verbose", kind: Bool.self, usage: "Show more debugging information")) { $0.verbose = $1 }
 
-        let open = parser.add(subparser: "open", overview: "Open file of .xcodeproj or .xcworkspace")
+        let open = parser.add(subparser: "open", overview: "Open file of .xcodeproj, .xcworkspace or .playground")
         binder.bind(parser: open) { $0.subcommand = Options.Command(rawValue: $1) }
-        binder.bind(positional: open.add(positional: "path", kind: String.self), to: { $0.path = Path($1) })
+        binder.bind(positional: open.add(positional: "fileName", kind: String.self)) { $0.fileName = $1 }
+        binder.bind(option: open.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current")) { $0.path = Path($1) }
 
-        let list = parser.add(subparser: "list", overview: "Show files of .xcodeproj or .xcworkspace in local")
+        let list = parser.add(subparser: "list", overview: "Show files of .xcodeproj, .xcworkspace or .playground in local")
         binder.bind(parser: list) { $0.subcommand = Options.Command.init(rawValue: $1) }
-        binder.bind(option: list.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current"), to: { $0.path = Path($1) })
+        binder.bind(option: list.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current")) { $0.path = Path($1) }
 
         do {
             let result = try parser.parse(arguments)
@@ -49,7 +50,8 @@ public struct XCOpenTool {
 
         switch subcommand {
         case .open:
-            parser.printUsage(on: stdoutStream)
+            let command = OpenTool()
+            try command.run(fileName: options.fileName!, path: options.path, verbose: options.verbose)
         case .list:
             let command = ListTool()
             _ = try command.run(path: options.path, verbose: options.verbose)
@@ -63,6 +65,7 @@ struct Options {
     var verbose = false
     var subcommand: Command?
     var path: Path?
+    var fileName: String?
 
     enum Command: String, CustomStringConvertible {
         case open = "open"
