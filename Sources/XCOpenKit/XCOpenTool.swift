@@ -25,10 +25,10 @@ public struct XCOpenTool {
 
         let open = parser.add(subparser: "open", overview: "Open file of .xcodeproj, .xcworkspace or .playground")
         binder.bind(parser: open) { $0.subcommand = Options.Command(rawValue: $1) }
-        binder.bind(positional: open.add(positional: "fileName", kind: String.self)) { $0.fileName = $1 }
+        binder.bind(positional: open.add(positional: "fileName", kind: String.self, usage: "Open file name like a Xxx..xcodeproj")) { $0.fileName = $1 }
         binder.bind(option: open.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current")) { $0.path = Path($1) }
 
-        let list = parser.add(subparser: "list", overview: "Show files of .xcodeproj, .xcworkspace or .playground in local")
+        let list = parser.add(subparser: "list", overview: "Explore files of .xcodeproj, .xcworkspace or .playground")
         binder.bind(parser: list) { $0.subcommand = Options.Command.init(rawValue: $1) }
         binder.bind(option: list.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current")) { $0.path = Path($1) }
 
