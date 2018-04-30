@@ -17,10 +17,8 @@ struct ListTool {
         let all = try path.recursiveChildren()
         let packages = all.flatMap { $0.glob("*.xcodeproj") + $0.glob("*xcworkspace") + $0.glob("*.playground") }
 
-        packages.forEach { print("\($0.lastComponent): \($0.description)") }
-        print("")
+        packages.forEach { print("\($0.lastComponent)   \($0.description)") }
 
         return packages
     }
-    
 }
