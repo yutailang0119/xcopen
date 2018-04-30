@@ -49,7 +49,7 @@ struct OpenTool {
         let selected = question.ask(inquiry.sentence, answers: inquiry.choices)
 
         guard let index = Int(selected) else {
-            throw XCOpenError.failedRun(description: "")
+            throw XCOpenError.failedRun(description: "Nomatch selected")
         }
 
         return packages[index]

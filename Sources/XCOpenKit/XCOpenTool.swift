@@ -45,7 +45,7 @@ public struct XCOpenTool {
 
     public func run() throws {
         guard let subcommand = options.subcommand else {
-            throw XCOpenError.failedRun(description: "")
+            throw XCOpenError.failedRun(description: "Nomatch subcommands")
         }
 
         switch subcommand {
