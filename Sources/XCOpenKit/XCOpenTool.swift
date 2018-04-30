@@ -20,7 +20,7 @@ public struct XCOpenTool {
 
         let binder = ArgumentBinder<Options>()
         binder.bind(parser: parser) { $0.subcommand = Options.Command(rawValue: $1) }
-        binder.bind(option: parser.add(option: "--version", kind: Bool.self)) { (options, _) in options.subcommand = Options.Command.version }
+        binder.bind(option: parser.add(option: "--version", kind: Bool.self)) { options, _ in options.subcommand = Options.Command.version }
         binder.bind(option: parser.add(option: "--verbose", kind: Bool.self, usage: "Show more debugging information")) { $0.verbose = $1 }
 
         let open = parser.add(subparser: "open", overview: "Open file of .xcodeproj, .xcworkspace or .playground")
