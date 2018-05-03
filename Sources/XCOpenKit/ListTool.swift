@@ -28,31 +28,31 @@ struct ListTool {
     func run(path: Path?, verbose: Bool = false) -> Single<Packages> {
         let path: Path = path ?? Path.current
 
+        let startDate = Date()
+
         let progressBar = createProgressBar(forStream: stdoutStream, header: "Exploring from \(path.description)")
-        progressBar.update(percent: 0, text: "Exploring of all")
+        progressBar.update(percent: 0, text: "Exploring of all files")
 
         let backgroundScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
 
         let all: Single<[Path]> = recursiveChildren(from: path)
 
-        let packages: Single<Packages> = all
+        let packages: Single<Packages> = all.subscribeOn(backgroundScheduler)
             .do(
                 onSuccess: { _ in
-                    progressBar.update(percent: 25, text: "Exploring of xcodeprojs, xcworkspaces and playgrounds")
-            })
-            .do(
+                    progressBar.update(percent: 25, text: "Filtering of xcodeprojs, xcworkspaces and playgrounds")
+            },
                 onSubscribed: {
-                    Thread.sleep(forTimeInterval: 60)
+                    pause()
             })
             .flatMap { paths in
                 Observable.combineLatest(
-                    self.glob("*.xcodeproj", from: paths),
-                    self.glob("*.xcworkspace", from: paths),
-                    self.glob("*.playground", from: paths)
+                    self.glob("*.xcodeproj", from: paths).subscribeOn(backgroundScheduler),
+                    self.glob("*.xcworkspace", from: paths).subscribeOn(backgroundScheduler),
+                    self.glob("*.playground", from: paths).subscribeOn(backgroundScheduler)
                     )
                     .asSingle()
             }
-            .observeOn(backgroundScheduler)
             .map { xcodeprojs, xcworkspaces, playgrounds -> Packages in
                 return Packages(xcodeprojs: xcodeprojs, xcworkspaces: xcworkspaces, playgrounds: playgrounds)
         }
@@ -70,7 +70,9 @@ struct ListTool {
                         writer.write(package.lastComponent, inColor: .cyan, bold: true)
                         writer.write(" \(package.description)\n")
                     }
-                    writer.write("xcodeproj: \(packages.xcodeprojs.count), xcworkspaces: \(packages.xcworkspaces.count), playgrounds: \(packages.playgrounds.count)\n")
+                    writer.write("xcodeprojs: \(packages.xcodeprojs.count), xcworkspaces: \(packages.xcworkspaces.count), playgrounds: \(packages.playgrounds.count)\n")
+                    let processTimeInterval = Date().timeIntervalSince(startDate)
+                    writer.write("\(String(round(processTimeInterval * 100) / 100 ))seconds", inColor: .yellow, bold: true)
                     exit(0)
             },
                 onError: { error in
