@@ -8,10 +8,6 @@
 import Utility
 import Basic
 
-public let version = Version(0, 0, 1,
-                             prereleaseIdentifiers: [],
-                             buildMetadataIdentifiers: [])
-
 public func handle(error: Error) {
     switch error {
     case ArgumentParserError.expectedArguments(let parser, _):
