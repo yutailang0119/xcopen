@@ -31,16 +31,19 @@ struct ListTool {
         let startDate = Date()
 
         let progressBar = createProgressBar(forStream: stdoutStream, header: "Exploring from \(path.description)")
-        progressBar.update(percent: 0, text: "Exploring of all files")
 
         let backgroundScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
 
         let all: Single<[Path]> = recursiveChildren(from: path)
 
-        let packages: Single<Packages> = all.subscribeOn(backgroundScheduler)
+        let packages: Single<Packages> = all
+            .subscribeOn(backgroundScheduler)
             .do(
                 onSuccess: { _ in
                     progressBar.update(percent: 25, text: "Filtering of xcodeprojs, xcworkspaces and playgrounds")
+            },
+                onSubscribe: {
+                    progressBar.update(percent: 0, text: "Exploring of all files")
             },
                 onSubscribed: {
                     pause()
