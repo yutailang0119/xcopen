@@ -25,8 +25,9 @@ public struct XCOpenTool {
 
         let open = parser.add(subparser: "open", overview: "Open file of .xcodeproj, .xcworkspace or .playground")
         binder.bind(parser: open) { $0.subcommand = Options.Command(rawValue: $1) }
-        binder.bind(positional: open.add(positional: "fileName", kind: String.self, usage: "Open file name like a Xxx..xcodeproj")) { $0.fileName = $1 }
+        binder.bind(positional: open.add(positional: "fileName", kind: String.self, usage: "Open file name like a Xxx.xcodeproj")) { $0.fileName = $1 }
         binder.bind(option: open.add(option: "--path", shortName: "-p", kind: String.self, usage: "Explore path. Defaults is current")) { $0.path = Path($1) }
+        binder.bind(option: open.add(option: "--openFinder", shortName: "-o", kind: Bool.self, usage: "Whether to open in Xcode or Finder")) { $0.isOpenFinder = $1 }
 
         let list = parser.add(subparser: "list", overview: "Explore files of .xcodeproj, .xcworkspace or .playground")
         binder.bind(parser: list) { $0.subcommand = Options.Command.init(rawValue: $1) }
@@ -51,7 +52,7 @@ public struct XCOpenTool {
         switch subcommand {
         case .open:
             let command = OpenTool()
-            try command.run(fileName: options.fileName!, path: options.path, verbose: options.verbose)
+            try command.run(fileName: options.fileName!, path: options.path, isOpenFinder: options.isOpenFinder, verbose: options.verbose)
         case .list:
             let command = ListTool()
             _ = command.run(path: options.path, verbose: options.verbose)
@@ -66,6 +67,7 @@ struct Options {
     var subcommand: Command?
     var path: Path?
     var fileName: String?
+    var isOpenFinder: Bool = false
 
     enum Command: String, CustomStringConvertible {
         case open = "open"

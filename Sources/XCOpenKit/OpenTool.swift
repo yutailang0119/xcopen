@@ -9,7 +9,7 @@ import Foundation
 import PathKit
 
 struct OpenTool {
-    func run(fileName: String, path: Path?, verbose: Bool = false) throws {
+    func run(fileName: String, path: Path?, isOpenFinder: Bool = false, verbose: Bool = false) throws {
         let path: Path = path ?? Path.current
 
         print("Searching of \"\(fileName)\" from \(path.description)")
@@ -21,14 +21,16 @@ struct OpenTool {
         case 0:
             throw XCOpenError.failedRun(description: "Nomatch fileName: \(fileName)")
         case 1:
-            try open(of: packages[0])
+            try open(of: packages[0], isOpenFinder: isOpenFinder)
         default:
             let selectedPackage = try selectPackage(from: packages)
-            try open(of: selectedPackage)
+            try open(of: selectedPackage, isOpenFinder: isOpenFinder)
         }
     }
 
-    private func open(of path: Path) throws {
+    private func open(of path: Path, isOpenFinder: Bool) throws {
+        let path = isOpenFinder ? path.parent() : path
+
         let process = Process()
         process.launchPath = "/bin/bash"
         process.arguments = ["-c", "open \(path.description)"]
@@ -38,6 +40,7 @@ struct OpenTool {
             process.launch()
         }
         process.waitUntilExit()
+        print("Opened \"\(path.lastComponent)\"")
     }
 
     private func selectPackage(from packages: [Path]) throws -> Path {
