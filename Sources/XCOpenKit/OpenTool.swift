@@ -12,7 +12,7 @@ struct OpenTool {
     func run(fileName: String, path: Path?, verbose: Bool = false) throws {
         let path: Path = path ?? Path.current
 
-        print("search of \"\(path.description)\"...")
+        print("Searching of \"\(fileName)\" from \(path.description)")
 
         let all = try path.recursiveChildren()
         let packages = all.filter { $0.lastComponent == fileName }
@@ -21,18 +21,22 @@ struct OpenTool {
         case 0:
             throw XCOpenError.failedRun(description: "Nomatch fileName: \(fileName)")
         case 1:
-            open(of: packages[0])
+            try open(of: packages[0])
         default:
             let selectedPackage = try selectPackage(from: packages)
-            open(of: selectedPackage)
+            try open(of: selectedPackage)
         }
     }
 
-    private func open(of path: Path) {
+    private func open(of path: Path) throws {
         let process = Process()
         process.launchPath = "/bin/bash"
         process.arguments = ["-c", "open \(path.description)"]
-        process.launch()
+        if #available(OSX 10.13, *) {
+            try process.run()
+        } else {
+            process.launch()
+        }
         process.waitUntilExit()
     }
 
