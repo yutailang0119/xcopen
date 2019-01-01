@@ -12,6 +12,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/kylef/PathKit.git", from: "0.9.0"),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "4.4.0"),
+        .package(url: "https://github.com/malcommac/Hydra.git", from: "1.2.1"),
         .package(url: "https://github.com/apple/swift-package-manager.git", from: "0.3.0"),
         .package(url: "https://github.com/yutailang0119/ProgressSpinnerKit", from: "0.1.0"),
     ],
