@@ -10,6 +10,7 @@ import PathKit
 import RxSwift
 import Basic
 import Utility
+import ProgressSpinnerKit
 
 struct Packages {
     let xcodeprojs: [Path]
@@ -30,7 +31,7 @@ struct ListTool {
 
         let startDate = Date()
 
-        let progressBar = createProgressBar(forStream: stdoutStream, header: "Exploring from \(path.description)")
+        let progressSpinner = createProgressSpinner(forStream: stdoutStream, header: " Loading:")
 
         let backgroundScheduler = ConcurrentDispatchQueueScheduler(qos: .background)
 
@@ -39,11 +40,8 @@ struct ListTool {
         let packages: Single<Packages> = all
             .subscribeOn(backgroundScheduler)
             .do(
-                onSuccess: { _ in
-                    progressBar.update(percent: 25, text: "Filtering of xcodeprojs, xcworkspaces and playgrounds")
-            },
                 onSubscribe: {
-                    progressBar.update(percent: 0, text: "Exploring of all files")
+                    progressSpinner.start()
             },
                 onSubscribed: {
                     pause()
@@ -63,8 +61,7 @@ struct ListTool {
         packages
             .do(
                 onSuccess: { _ in
-                    progressBar.update(percent: 100, text: "")
-                    progressBar.complete(success: true)
+                    progressSpinner.stop()
             })
             .subscribe(
                 onSuccess: { packages in
