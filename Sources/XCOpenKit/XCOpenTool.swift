@@ -55,7 +55,7 @@ public struct XCOpenTool {
             try command.run(fileName: options.fileName!, path: options.path, isOpenFinder: options.isOpenFinder, verbose: options.verbose)
         case .list:
             let command = ListTool()
-            _ = command.run(path: options.path, verbose: options.verbose)
+            command.run(path: options.path, verbose: options.verbose)
         case .version:
             print(XCOpenKit.version)
         }
