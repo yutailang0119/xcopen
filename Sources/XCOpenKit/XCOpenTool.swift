@@ -8,7 +8,6 @@
 import Foundation
 import SPMUtility
 import Basic
-import POSIX
 import PathKit
 
 public struct XCOpenTool {
@@ -40,7 +39,7 @@ public struct XCOpenTool {
             self.options = options
         } catch {
             handle(error: error)
-            POSIX.exit(1)
+            fatalError()
         }
     }
 
