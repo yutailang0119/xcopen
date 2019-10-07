@@ -9,7 +9,7 @@ import Foundation
 import PathKit
 import RxSwift
 import Basic
-import Utility
+import SPMUtility
 import ProgressSpinnerKit
 
 struct Packages {

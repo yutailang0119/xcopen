@@ -5,7 +5,7 @@
 //  Created by Yutaro Muta on 2018/05/04.
 //
 
-import Utility
+import SPMUtility
 
 private let current = "0.1.0"
 
