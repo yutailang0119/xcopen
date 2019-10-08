@@ -39,7 +39,7 @@ public struct XCOpenTool {
             self.options = options
         } catch {
             handle(error: error)
-            fatalError()
+            exit(1)
         }
     }
 
