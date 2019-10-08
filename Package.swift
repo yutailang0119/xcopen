@@ -10,7 +10,7 @@ let package = Package(
         .library(name: "XCOpenKit", targets: ["XCOpenKit"]),
     ], 
     dependencies: [
-        .package(url: "https://github.com/kylef/PathKit.git", from: "0.9.0"),
+        .package(url: "https://github.com/kylef/PathKit.git", from: "1.0.0"),
         .package(url: "https://github.com/ReactiveX/RxSwift.git", from: "4.4.0"),
         .package(url: "https://github.com/apple/swift-package-manager.git", from: "0.5.0"),
         .package(url: "https://github.com/yutailang0119/ProgressSpinnerKit", from: "0.3.0"),
