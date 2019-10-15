@@ -2,11 +2,14 @@ PREFIX?=/usr/local
 VERSION=$(shell /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" XCOpen.xcodeproj/XCOpenKit_Info.plist)
 
 build:
-	swift build -c release -Xswiftc -static-stdlib
+	swift build --disable-sandbox -c release -Xswiftc -static-stdlib
 
 install: build
 	mkdir -p "$(PREFIX)/bin"
 	cp -f ".build/release/xcopen" "$(PREFIX)/bin/xcopen"
+
+clean:
+	swift package clean
 
 set_version:
 	agvtool new-marketing-version ${VERSION}

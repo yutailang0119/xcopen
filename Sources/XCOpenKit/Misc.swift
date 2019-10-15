@@ -5,7 +5,7 @@
 //  Created by Yutaro Muta on 2018/04/14.
 //
 
-import Utility
+import SPMUtility
 import Basic
 
 public func handle(error: Error) {
