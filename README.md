@@ -27,7 +27,7 @@ $ cd xcopen
 $ make install
 ```
 
-## Usege
+## Usage
 
 ### xcopen
 
